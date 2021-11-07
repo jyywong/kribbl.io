@@ -1,25 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+
+import Welcome from './Pages/Welcome';
+import SocketContainer from './Components/SocketContainer';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [ mode, setMode ] = useState('welcome');
+	const [ name, setName ] = useState('');
+
+	return mode === 'welcome' ? (
+		<Welcome mode={mode} setMode={setMode} name={name} setName={setName} />
+	) : (
+		<SocketContainer mode={mode} setMode={setMode} name={name} />
+	);
 }
 
 export default App;
