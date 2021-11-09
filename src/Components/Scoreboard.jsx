@@ -4,14 +4,12 @@ import styled from 'styled-components';
 
 const ScoreboardContainer = styled.div`
 	background-color: transparent;
-	border-radius: 10px;
-	border: 2px solid white;
-	padding: 1rem;
+
 	display: flex;
 	flex-direction: column;
 	flex-basis: 20%;
-	height: 75%;
-	margin: 1rem;
+	height: 100%;
+	margin-right: 1rem;
 `;
 
 const Scoreboard = ({ socket, playerList, setPlayerList }) => {

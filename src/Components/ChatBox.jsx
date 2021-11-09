@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Announcement from './Announcement';
 import Message from './Message';
 
 const ChatContainer = styled.div`
-	background-color: transparent;
-	margin: 1rem;
-	border: 2px solid white;
+	background-color: rgb(255, 255, 255, 0.8);
+	margin-left: 1rem;
 	border-radius: 10px;
-	width: 20%;
-	height: 75%;
+	width: 22%;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -17,6 +17,8 @@ const ChatLog = styled.div`
 	background-color: transparent;
 	border-radius: 10px;
 	flex-grow: 1;
+	padding: 1rem;
+	overflow: auto;
 `;
 const ChatInputContainer = styled.form`
 	background-color: transparent;
@@ -28,42 +30,44 @@ const ChatTextInput = styled.input`
 	width: 100%;
 	border: none;
 	padding: .5rem;
-	background-color: #1d3844;
+	background-color: rgb(38, 70, 83, 0.5);
 	border-radius: 5px;
 
 	&::placeholder {
-		color: #8f8f8f;
+		color: rgb(255, 255, 255, 0.6);
 	}
 `;
-const ChatTextSend = styled.button`
-	border: 1px solid black;
-	border-radius: 5px;
-`;
-const Chatbox = ({ socket }) => {
+
+const Chatbox = ({ socket, name }) => {
 	const [ messageList, setMessageList ] = useState([]);
 	const [ messageInput, setMessageInput ] = useState('');
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		setMessageList([ ...messageList, messageInput ]);
+		setMessageList([ ...messageList, { isAnnounce: false, username: name, message: messageInput } ]);
 		setMessageInput('');
 		socket.emit('newMessage', { message: messageInput });
 	};
-	const handleNewMessage = ({ message }) => {
-		setMessageList((current) => [ ...current, message ]);
+	const handleNewMessage = ({ username, message }) => {
+		console.log(username);
+		setMessageList((current) => [ ...current, { username, message } ]);
 	};
 	useEffect(() => {
 		socket.on('serverNewMessage', handleNewMessage);
 		socket.on('someoneGuessedRight', (socketID) => {
 			const announcement = `${socketID} guessed the word!`;
-			setMessageList((current) => [ ...current, announcement ]);
+			setMessageList((current) => [ ...current, { isAnnounce: true, message: announcement } ]);
 		});
 	}, []);
 	return (
 		<ChatContainer>
 			<ChatLog>
-				{messageList.map((message, index) => {
-					return <Message key={index} text={message} />;
+				{messageList.map(({ isAnnounce, username, message }, index) => {
+					return isAnnounce ? (
+						<Announcement message={message} />
+					) : (
+						<Message key={index} username={username} text={message} />
+					);
 				})}
 			</ChatLog>
 			<ChatInputContainer onSubmit={handleSubmit}>
@@ -75,7 +79,6 @@ const Chatbox = ({ socket }) => {
 						setMessageInput(e.target.value);
 					}}
 				/>
-				{/* <ChatTextSend type="submit">Send</ChatTextSend> */}
 			</ChatInputContainer>
 		</ChatContainer>
 	);

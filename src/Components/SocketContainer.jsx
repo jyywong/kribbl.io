@@ -41,7 +41,13 @@ const SocketContainer = ({ mode, setMode, name }) => {
 				/>
 			) : (
 				<MainContainer>
-					<GameBox socket={socket} playerList={playerList} setPlayerList={setPlayerList} />
+					<GameBox
+						socket={socket}
+						playerList={playerList}
+						setPlayerList={setPlayerList}
+						name={name}
+						setMode={setMode}
+					/>
 				</MainContainer>
 			) : (
 				'loading'

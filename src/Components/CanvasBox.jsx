@@ -7,7 +7,7 @@ import UnderscoresHint from './UnderscoresHint';
 
 const CanvasContainer = styled.div`
 	flex-grow: 1;
-	height: 80%;
+	height: 100%;
 	background-color: transparent;
 	display: flex;
 	justify-content: center;
@@ -16,6 +16,7 @@ const CanvasContainer = styled.div`
 `;
 const StyledCanvas = styled.canvas`
 	background-color: white;
+	border-radius: 10px;
 	width: 100%;
 	flex-grow: 1;
 `;
@@ -33,14 +34,11 @@ const GameEnd = styled.h1`
 	font-size: 4rem;
 	color: purple;
 `;
-const CanvasBox = ({ socket }) => {
+const CanvasBox = ({ socket, isDrawer, setMode }) => {
 	const canvasRef = useRef();
-	const [ word, setWord ] = useState('');
-	const [ isDrawer, setIsDrawer ] = useState(false);
+
 	const [ isPainting, setIsPainting ] = useState(false);
 	const [ mousePosition, setMousePosition ] = useState({ x: 0, y: 0 });
-	const [ wordHintLength, setWordHintLength ] = useState(0);
-	const [ timer, setTimer ] = useState(60);
 	const [ roundStart, setRoundStart ] = useState(true);
 	const [ gameEnd, setGameEnd ] = useState(false);
 	const roundScoreBoard = useRef([]);
@@ -113,15 +111,7 @@ const CanvasBox = ({ socket }) => {
 			const { oldMousePos, newMousePos } = response;
 			drawLine(oldMousePos, newMousePos, true);
 		});
-		socket.on('youAreDrawer', (word) => {
-			setIsDrawer(true);
-			setWord(word);
-		});
-		socket.on('wordHint', (response) => {
-			setWordHintLength(response);
-		});
 		socket.on('timerTick', (countdownTime) => {
-			setTimer(countdownTime);
 			if (countdownTime <= 0) {
 				setRoundStart(false);
 			}
@@ -130,21 +120,19 @@ const CanvasBox = ({ socket }) => {
 			roundScoreBoard.current = response;
 		});
 		socket.on('newRound', () => {
-			setIsDrawer(false);
-			setWord('');
-			setWordHintLength(0);
-			setTimer(60);
+			// resetCanvas();
 			setRoundStart(true);
 		});
 		socket.on('endOfGame', () => {
 			console.log('end of game');
 			setGameEnd(true);
+			setTimeout(() => {
+				setMode('lobby');
+			}, 6000);
 		});
 	}, []);
 	return (
 		<CanvasContainer>
-			<Timer>{timer}</Timer>
-			{isDrawer ? <TargetWord>{word}</TargetWord> : <UnderscoresHint wordHintLength={wordHintLength} />}
 			{gameEnd && <GameEnd>Game Over</GameEnd>}
 			{roundStart ? (
 				<StyledCanvas
